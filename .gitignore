@@ -6,3 +6,5 @@ __pycache__/
 logs/
 data/
 pretrain/
+# HD: ignore python virtual env
+.venv/

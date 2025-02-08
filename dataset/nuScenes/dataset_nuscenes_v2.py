@@ -44,8 +44,8 @@ map_name_from_segmentation_class_to_segmentation_index = {
 class Nuscenes(data.Dataset):
     def __init__(self, dataroot, version='v1.0-trainval', split='train'):
         # HD: mofidy the version and split
-        version = 'v1.0-mini'
-        split = 'val'
+        version = 'v1.0-trainval'
+        split = 'train'
         assert version in ['v1.0-trainval', 'v1.0-mini']
         assert split in ['train', 'val']
         self.version = version

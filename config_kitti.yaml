@@ -31,13 +31,13 @@ original_image_size: [64, 2048]
 # Stem
 conv_stem: 'ConvStem' # 'none' or 'ConvStem'
 stem_base_channels: 32
-D_h: 128 # hidden dimension of the stem
+D_h: 256 # hidden dimension of the stem
 # Note tha the test results that we provide in the paper for the SemanticKITTI were with D_h = 256.
 # However, in the validation set D_h = 128 gave us better mIoU results.
 
 # Decoder
 decoder: 'up_conv'  # 'linear' or 'up_conv'
-skip_filters: 128 # has to be 0 (no skip) or D_h 
+skip_filters: 256 # has to be 0 (no skip) or D_h 
 
 # 3D refiner
 use_kpconv: true
