@@ -342,7 +342,9 @@ class RangeViT(nn.Module):
                 print('Reusing positional embeddings.')
                 gs_new_h = int((image_size[0] - new_patch_size[0]) // new_patch_stride[0] + 1)
                 gs_new_w = int((image_size[1] - new_patch_size[1]) // new_patch_stride[1] + 1)
+                print(f'New grid size: {gs_new_h}x{gs_new_w}')
                 num_extra_tokens = 1
+                
                 resized_pos_emb = resize_pos_embed(pretrained_state_dict['encoder.pos_embed'],
                                                    grid_old_shape=None,
                                                    grid_new_shape=(gs_new_h, gs_new_w),

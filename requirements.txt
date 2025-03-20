@@ -5,4 +5,7 @@ pyyaml
 tensorboardX
 prettytable
 timm
-nuscenes-devkit
+# additional if not using nuscenes-devkit
+tensorboard
+matplotlib
+# nuscenes-devkit
