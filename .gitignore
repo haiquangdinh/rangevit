@@ -8,3 +8,6 @@ data/
 pretrain/
 # HD: ignore python virtual env
 .venv/
+
+# HD: ignore model
+*.pth
