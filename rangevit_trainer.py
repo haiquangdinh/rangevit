@@ -253,6 +253,10 @@ class RangeViTTrainer:
         
         checkpoint = torch.load(checkpoint_path, map_location=self.device)
         
+        # Debugging: Print checkpoint keys
+        print("Checkpoint keys:", checkpoint.keys())
+        print("Checkpoint content:", checkpoint)
+        
         # Load model weights
         if hasattr(self.model, 'module'):
             self.model.module.load_state_dict(checkpoint['model'])
@@ -305,23 +309,34 @@ class RangeViTTrainer:
         progress_bar = tqdm(self.train_loader, desc=f"Epoch {epoch+1}/{self.config.get('n_epochs', 60)}")
         
         for batch_idx, data in enumerate(progress_bar):
+            # print(f"Batch {batch_idx} data keys: {list(data.keys())}")
             if self.config.get('use_kpconv', True):
-                feats, labels, _ = data
-                feats = feats.to(self.device)
-                labels = labels.to(self.device)
+                feats = data['input2d'].to(self.device)
+                labels = data['labels'].to(self.device)
+                px = data['px'].to(self.device)
+                py = data['py'].to(self.device)
+                pxyz = data['points_xyz'].to(self.device)
+                pknn = data['knns'].to(self.device)
+                num_points = data['num_points'].to(self.device)
             else:
-                feats, labels, _ = data
-                feats = feats.to(self.device)
-                labels = labels.to(self.device)
+                feats = data['input2d'].to(self.device)
+                labels = data['labels'].to(self.device)
             
             # Forward pass with mixed precision
             self.optimizer.zero_grad()
             
-            with autocast(enabled=self.args.use_amp):
-                outputs = self.model(feats)
-                
+            with autocast(device_type='cuda', enabled=self.args.use_amp):
+                if self.config.get('use_kpconv', True):
+                    outputs = self.model(feats, px, py, pxyz, pknn, num_points)
+                else:
+                    outputs = self.model(feats)
+
                 # Calculate loss
                 criterion = nn.CrossEntropyLoss(weight=self.cls_weight, ignore_index=0)
+                # print output shapes for debugging
+                # print(f"Outputs shape: {outputs.shape}, Labels shape: {labels.shape}")
+                labels = labels.unsqueeze(1).unsqueeze(2)  # Make 3D: B x 1 x 1
+                # print(f"Outputs shape: {outputs.shape}, Labels shape: {labels.shape}")
                 loss = criterion(outputs, labels)
             
             # Backward pass with gradient scaling
