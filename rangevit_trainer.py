@@ -413,7 +413,7 @@ class RangeViTTrainer:
                         py = batch_dict['py'].to(self.device) if 'py' in batch_dict else None
                         pxyz = batch_dict['points_xyz'].to(self.device) if 'points_xyz' in batch_dict else None
                         knns = batch_dict['knns'].to(self.device) if 'knns' in batch_dict else None
-                        num_points = batch_dict['num_points'] if 'num_points' in batch_dict else None
+                        num_points = batch_dict['num_points'].to(self.device) if 'num_points' in batch_dict else None
                         
                         # Forward pass with all required parameters
                         outputs = self.model(feats, px, py, pxyz, knns, num_points)
@@ -453,8 +453,8 @@ class RangeViTTrainer:
                 
                 # Store predictions and labels for IoU calculation
                 mask = labels != 0
-                all_preds.append(pred.cpu().numpy())
-                all_labels.append(labels.cpu().numpy())
+                all_preds.append(pred.detach().cpu().numpy())
+                all_labels.append(labels.detach().cpu().numpy())
                 
                 # Update progress bar
                 progress_bar.set_postfix({'loss': loss.item()})
@@ -476,6 +476,9 @@ class RangeViTTrainer:
         self.writer.add_scalar('val/miou', miou, epoch)
         
         print(f"Validation - Loss: {val_loss:.4f}, mIoU: {miou:.4f}")
+        del all_preds, all_labels, outputs, loss, pred, labels, feats
+        torch.cuda.empty_cache()
+        import gc; gc.collect()
         
         return val_loss, miou
     
